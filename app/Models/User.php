@@ -50,4 +50,7 @@ class User extends Authenticatable
         'cambiar_password'  => 'boolean',
     ];
     }
+
+    public function docente() { return $this->hasOne(Docente::class); }
+public function acudiente() { return $this->hasOne(Acudiente::class); }
 }

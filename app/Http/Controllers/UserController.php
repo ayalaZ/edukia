@@ -14,7 +14,6 @@ class UserController extends Controller
         'admin'      => 'Administrador',
         'administrativo' => 'Administrativo',
         'docente'    => 'Docente',
-        'estudiante' => 'Estudiante',
         'acudiente'  => 'Acudiente',
     ];
 

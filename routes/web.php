@@ -35,6 +35,13 @@ Route::middleware('auth')->group(function () {
         ->name('password.forzar.update');
 });
 Route::middleware(['auth', 'verified', 'rol:admin,administrativo'])->group(function () {
+    Route::get('estudiantes/plantilla', [EstudianteController::class, 'plantilla'])
+        ->name('estudiantes.plantilla');
+    Route::get('estudiantes/importar', [EstudianteController::class, 'importar'])
+        ->name('estudiantes.importar');
+    Route::post('estudiantes/importar', [EstudianteController::class, 'procesarImportacion'])
+        ->name('estudiantes.importar.procesar');
+
     Route::resource('estudiantes', EstudianteController::class)
         ->parameters(['estudiantes' => 'estudiante'])
         ->except(['show']);

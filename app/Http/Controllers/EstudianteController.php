@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Estudiante;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Exports\PlantillaEstudiantes;
+use App\Imports\EstudiantesImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EstudianteController extends Controller
 {
@@ -90,4 +93,34 @@ class EstudianteController extends Controller
             'estado'           => ['required', Rule::in(array_keys(self::ESTADOS))],
         ];
     }
+    public function plantilla()
+{
+    return Excel::download(new PlantillaEstudiantes, 'plantilla_estudiantes.xlsx');
+}
+
+public function importar()
+{
+    return view('estudiantes.importar');
+}
+
+public function procesarImportacion(Request $request)
+{
+    $request->validate([
+        'archivo' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+    ], [
+        'archivo.required' => 'Selecciona un archivo de Excel.',
+        'archivo.mimes'    => 'El archivo debe ser .xlsx, .xls o .csv.',
+        'archivo.max'      => 'El archivo no puede pesar más de 5 MB.',
+    ]);
+
+    $import = new EstudiantesImport;
+    Excel::import($import, $request->file('archivo'));
+
+    if ($import->errores) {
+        return back()->with('errores_importacion', $import->errores);
+    }
+
+    return redirect()->route('estudiantes.index')
+        ->with('ok', "Se importaron {$import->importados} estudiantes correctamente.");
+}
 }

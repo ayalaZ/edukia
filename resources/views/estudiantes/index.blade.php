@@ -1,12 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Estudiantes</h2>
-            <a href="{{ route('estudiantes.create') }}"
-               class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-700">
-                Nuevo estudiante
-            </a>
-        </div>
+        <div class="flex items-center gap-2">
+    <a href="{{ route('estudiantes.importar') }}"
+       class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-50">
+        Importar desde Excel
+    </a>
+    <a href="{{ route('estudiantes.create') }}"
+       class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-700">
+        Nuevo estudiante
+    </a>
+</div>
     </x-slot>
 
     <div class="py-8">

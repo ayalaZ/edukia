@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Docente;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     private const ROLES = [
-        'admin'      => 'Administrador',
+        'admin'          => 'Administrador',
         'administrativo' => 'Administrativo',
-        'docente'    => 'Docente',
-        'acudiente'  => 'Acudiente',
+        'docente'        => 'Docente',
+        'acudiente'      => 'Acudiente',
     ];
+
+    private const CAMPOS_DOCENTE = ['especialidad', 'fecha_contratacion', 'tipo_contrato'];
 
     public function index(Request $request)
     {
@@ -47,12 +52,21 @@ class UserController extends Controller
     {
         $datos = $request->validate($this->reglas());
 
-        $datos['password'] = Hash::make($datos['password']);
-        $datos['activo'] = true;
-        $datos['cambiar_password'] = true;
+        $ficha = Arr::only($datos, self::CAMPOS_DOCENTE);
+        $datos = Arr::except($datos, self::CAMPOS_DOCENTE);
+
+        $datos['password']          = Hash::make($datos['password']);
+        $datos['activo']            = true;
+        $datos['cambiar_password']  = true;
         $datos['email_verified_at'] = now();
 
-        User::create($datos);
+        DB::transaction(function () use ($datos, $ficha) {
+            $user = User::create($datos);
+
+            if ($user->rol === 'docente') {
+                $user->docente()->create($ficha);
+            }
+        });
 
         return redirect()->route('usuarios.index')
             ->with('ok', 'Usuario registrado correctamente.');
@@ -61,7 +75,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return view('usuarios.edit', [
-            'user'  => $user,
+            'user'  => $user->load('docente'),
             'roles' => self::ROLES,
         ]);
     }
@@ -69,6 +83,9 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $datos = $request->validate($this->reglas($user));
+
+        $ficha = Arr::only($datos, self::CAMPOS_DOCENTE);
+        $datos = Arr::except($datos, self::CAMPOS_DOCENTE);
 
         // Un administrador no puede quitarse su propio rol
         if ($user->id === Auth::id()) {
@@ -79,11 +96,16 @@ class UserController extends Controller
             unset($datos['password']);
         } else {
             $datos['password'] = Hash::make($datos['password']);
-            // Si el admin cambia su propia clave, no se le obliga a cambiarla otra vez
             $datos['cambiar_password'] = $user->id !== Auth::id();
         }
 
-        $user->update($datos);
+        DB::transaction(function () use ($user, $datos, $ficha) {
+            $user->update($datos);
+
+            if ($user->rol === 'docente') {
+                $user->docente()->updateOrCreate(['user_id' => $user->id], $ficha);
+            }
+        });
 
         return redirect()->route('usuarios.index')
             ->with('ok', 'Usuario actualizado correctamente.');
@@ -129,6 +151,11 @@ class UserController extends Controller
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'rol'              => ['required', Rule::in(array_keys(self::ROLES))],
             'password'         => [$user ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+
+            // Ficha del docente
+            'especialidad'       => ['nullable', 'string', 'max:255'],
+            'fecha_contratacion' => ['nullable', 'date', 'before_or_equal:today'],
+            'tipo_contrato'      => ['nullable', Rule::in(array_keys(Docente::CONTRATOS))],
         ];
     }
 }

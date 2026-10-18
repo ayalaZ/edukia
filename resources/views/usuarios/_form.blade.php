@@ -1,4 +1,8 @@
-@php $user = $user ?? null; @endphp
+@php
+    $user = $user ?? null;
+    $ficha = $user?->docente;
+    $esMismoUsuario = $user && $user->id === auth()->id();
+@endphp
 
 @csrf
 @if ($user)
@@ -56,14 +60,17 @@
 
     <div>
         <x-input-label for="rol" value="Rol" />
-        <select id="rol" name="rol" required
-                @disabled($user && $user->id === auth()->id())
+        <select id="rol" name="rol" required @disabled($esMismoUsuario)
                 class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
             <option value="">Selecciona un rol</option>
             @foreach ($roles as $valor => $etiqueta)
                 <option value="{{ $valor }}" @selected(old('rol', $user?->rol) === $valor)>{{ $etiqueta }}</option>
             @endforeach
         </select>
+        @if ($esMismoUsuario)
+            {{-- Un select deshabilitado no se envía, así que se manda el rol aparte --}}
+            <input type="hidden" name="rol" value="{{ $user->rol }}">
+        @endif
         <x-input-error :messages="$errors->get('rol')" class="mt-2" />
     </div>
 
@@ -84,7 +91,53 @@
     </div>
 </div>
 
+<div id="datos-docente" style="display: none;">
+    <h3 class="text-lg font-medium text-gray-900 mt-8 mb-4">Datos del docente</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+            <x-input-label for="especialidad" value="Especialidad / materia" />
+            <x-text-input id="especialidad" name="especialidad" type="text" class="mt-1 block w-full"
+                          :value="old('especialidad', $ficha?->especialidad)" />
+            <x-input-error :messages="$errors->get('especialidad')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="fecha_contratacion" value="Fecha de contratación" />
+            <x-text-input id="fecha_contratacion" name="fecha_contratacion" type="date" class="mt-1 block w-full"
+                          :value="old('fecha_contratacion', $ficha?->fecha_contratacion?->format('Y-m-d'))" />
+            <x-input-error :messages="$errors->get('fecha_contratacion')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="tipo_contrato" value="Tipo de contrato" />
+            <select id="tipo_contrato" name="tipo_contrato"
+                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                <option value="">Selecciona</option>
+                @foreach (\App\Models\Docente::CONTRATOS as $valor => $etiqueta)
+                    <option value="{{ $valor }}" @selected(old('tipo_contrato', $ficha?->tipo_contrato) === $valor)>{{ $etiqueta }}</option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('tipo_contrato')" class="mt-2" />
+        </div>
+    </div>
+</div>
+
 <div class="flex items-center justify-end gap-4 mt-8">
     <a href="{{ route('usuarios.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
     <x-primary-button>{{ $user ? 'Guardar cambios' : 'Registrar usuario' }}</x-primary-button>
 </div>
+
+<script>
+    (function () {
+        const rol = document.getElementById('rol');
+        const bloque = document.getElementById('datos-docente');
+
+        function alternar() {
+            bloque.style.display = rol.value === 'docente' ? 'block' : 'none';
+        }
+
+        rol.addEventListener('change', alternar);
+        alternar();
+    })();
+</script>

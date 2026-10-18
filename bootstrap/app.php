@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
     $middleware->alias([
         'admin' => \App\Http\Middleware\SoloAdmin::class,
+        'rol'   => \App\Http\Middleware\RolPermitido::class,
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

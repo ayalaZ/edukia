@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CambioPasswordController;
+use App\Http\Controllers\EstudianteController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -32,5 +33,10 @@ Route::middleware('auth')->group(function () {
         ->name('password.forzar');
     Route::put('cambiar-password', [CambioPasswordController::class, 'update'])
         ->name('password.forzar.update');
+});
+Route::middleware(['auth', 'verified', 'rol:admin,administrativo'])->group(function () {
+    Route::resource('estudiantes', EstudianteController::class)
+        ->parameters(['estudiantes' => 'estudiante'])
+        ->except(['show']);
 });
 require __DIR__.'/auth.php';

@@ -16,6 +16,11 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                 @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+                    <x-nav-link :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.*')">
+                        Estudiantes
+                    </x-nav-link>
+                @endif
                 @if (auth()->user()->rol === 'admin')
                     <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
                         Usuarios
@@ -76,6 +81,11 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>
+        @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+            <x-responsive-nav-link :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.*')">
+                Estudiantes
+            </x-responsive-nav-link>
+        @endif
         @if (auth()->user()->rol === 'admin')
             <x-responsive-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
                 Usuarios

@@ -42,7 +42,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password') + ['activo' => true], $this->boolean('remember'))) {
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Credenciales correctas, pero la cuenta está desactivada
+    if (! Auth::user()->activo) {
+        Auth::logout();
+        RateLimiter::clear($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => 'Tu cuenta está desactivada. Contacta a la administración.',
+        ]);
+    }
         RateLimiter::clear($this->throttleKey());
     }
 

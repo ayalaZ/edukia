@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Matricula extends Model
 {
-    public function estudiante() { return $this->belongsTo(Estudiante::class); }
-public function seccion() { return $this->belongsTo(Seccion::class); }
+    protected $fillable = ['estudiante_id', 'seccion_id', 'anio', 'estado', 'fecha'];
+
+    protected $casts = ['fecha' => 'date'];
+
+    public function estudiante()
+    {
+        return $this->belongsTo(Estudiante::class);
+    }
+
+    public function seccion()
+    {
+        return $this->belongsTo(Seccion::class);
+    }
 }

@@ -21,6 +21,11 @@
                         Estudiantes
                     </x-nav-link>
                 @endif
+                @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+                    <x-nav-link :href="route('secciones.index')" :active="request()->routeIs('secciones.*')">
+                        Secciones
+                    </x-nav-link>
+                @endif
                 @if (auth()->user()->rol === 'admin')
                     <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
                         Usuarios
@@ -84,6 +89,11 @@
         @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
             <x-responsive-nav-link :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.*')">
                 Estudiantes
+            </x-responsive-nav-link>
+        @endif
+        @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+            <x-responsive-nav-link :href="route('secciones.index')" :active="request()->routeIs('secciones.*')">
+                Secciones
             </x-responsive-nav-link>
         @endif
         @if (auth()->user()->rol === 'admin')

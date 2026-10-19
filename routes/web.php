@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CambioPasswordController;
 use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\SeccionController;
+use App\Http\Controllers\MatriculaController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -46,4 +48,17 @@ Route::middleware(['auth', 'verified', 'rol:admin,administrativo'])->group(funct
         ->parameters(['estudiantes' => 'estudiante'])
         ->except(['show']);
 });
+
+Route::middleware(['auth', 'verified', 'rol:admin,administrativo'])->group(function () {
+    Route::resource('secciones', SeccionController::class)
+        ->parameters(['secciones' => 'seccion'])
+        ->except(['show']);
+});
+
+Route::get('secciones/{seccion}/matriculas', [MatriculaController::class, 'index'])
+    ->name('matriculas.index');
+Route::post('secciones/{seccion}/matriculas', [MatriculaController::class, 'store'])
+    ->name('matriculas.store');
+Route::delete('matriculas/{matricula}', [MatriculaController::class, 'destroy'])
+    ->name('matriculas.destroy');
 require __DIR__.'/auth.php';

@@ -22,6 +22,11 @@
                     </x-nav-link>
                 @endif
                 @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+                    <x-nav-link :href="route('acudientes.index')" :active="request()->routeIs('acudientes.*')">
+                        Acudientes
+                    </x-nav-link>
+                @endif
+                @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
                     <x-nav-link :href="route('secciones.index')" :active="request()->routeIs('secciones.*')">
                         Secciones
                     </x-nav-link>
@@ -89,6 +94,11 @@
         @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
             <x-responsive-nav-link :href="route('estudiantes.index')" :active="request()->routeIs('estudiantes.*')">
                 Estudiantes
+            </x-responsive-nav-link>
+        @endif
+        @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+            <x-responsive-nav-link :href="route('acudientes.index')" :active="request()->routeIs('acudientes.*')">
+                Acudientes
             </x-responsive-nav-link>
         @endif
         @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))

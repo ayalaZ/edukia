@@ -10,7 +10,12 @@ class Estudiante extends Model
     use SoftDeletes;
 
     protected $fillable = ['codigo', 'nombres', 'apellidos', 'documento',
-        'fecha_nacimiento', 'sexo', 'direccion', 'telefono', 'estado'];
+    'fecha_nacimiento', 'sexo', 'direccion', 'telefono', 'estado', 'beca'];
+
+    public const BECAS = [
+    'becado'        => 'Becado',
+    'beca_especial' => 'Beca especial',
+    ];
 
     protected $casts = ['fecha_nacimiento' => 'date'];
 

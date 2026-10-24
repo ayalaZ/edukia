@@ -29,6 +29,8 @@ class EstudianteController extends Controller
                 });
             })
             ->when($request->estado, fn ($q, $estado) => $q->where('estado', $estado))
+            ->when($request->beca === 'ninguna', fn ($q) => $q->whereNull('beca'))
+            ->when(in_array($request->beca, array_keys(Estudiante::BECAS), true), fn ($q) => $q->where('beca', $request->beca))
             ->orderBy('apellidos')
             ->orderBy('nombres')
             ->paginate(15)
@@ -91,6 +93,7 @@ class EstudianteController extends Controller
             'telefono'         => ['nullable', 'string', 'max:20'],
             'direccion'        => ['nullable', 'string', 'max:255'],
             'estado'           => ['required', Rule::in(array_keys(self::ESTADOS))],
+            'beca' => ['nullable', Rule::in(array_keys(Estudiante::BECAS))],
         ];
     }
     public function plantilla()

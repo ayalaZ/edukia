@@ -1,9 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-2">
+       <div class="flex items-center gap-2">
+    <a href="{{ route('acudientes.importar') }}"
+       class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-50">
+        Importar acudientes
+    </a>
     <a href="{{ route('estudiantes.importar') }}"
        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-50">
-        Importar desde Excel
+        Importar estudiantes
     </a>
     <a href="{{ route('estudiantes.create') }}"
        class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-700">
@@ -29,6 +33,13 @@
                         <option value="{{ $valor }}" @selected(request('estado') === $valor)>{{ $etiqueta }}</option>
                     @endforeach
                 </select>
+                <select name="beca" class="border-gray-300 rounded-md shadow-sm">
+    <option value="">Con o sin beca</option>
+    <option value="ninguna" @selected(request('beca') === 'ninguna')>Sin beca</option>
+    @foreach (\App\Models\Estudiante::BECAS as $valor => $etiqueta)
+        <option value="{{ $valor }}" @selected(request('beca') === $valor)>{{ $etiqueta }}</option>
+    @endforeach
+</select>
                 <x-primary-button>Buscar</x-primary-button>
             </form>
 
@@ -64,9 +75,16 @@
                                     <span class="px-2 py-1 text-xs font-medium rounded-full {{ $color }}">
                                         {{ $estados[$estudiante->estado] ?? $estudiante->estado }}
                                     </span>
+                                    @if ($estudiante->beca)
+                                        <span class="ml-1 px-2 py-1 text-xs font-medium rounded-full {{ $estudiante->beca === 'beca_especial' ? 'bg-purple-100 text-purple-800' : 'bg-amber-100 text-amber-800' }}">
+                                            {{ \App\Models\Estudiante::BECAS[$estudiante->beca] ?? $estudiante->beca }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-end gap-3">
+                                        <a href="{{ route('estudiantes.acudientes.index', $estudiante) }}"
+                                        class="text-emerald-600 hover:underline">Acudientes</a>
                                         <a href="{{ route('estudiantes.edit', $estudiante) }}"
                                            class="text-indigo-600 hover:underline">Editar</a>
 

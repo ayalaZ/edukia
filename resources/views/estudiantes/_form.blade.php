@@ -69,7 +69,17 @@
         </select>
         <x-input-error :messages="$errors->get('estado')" class="mt-2" />
     </div>
-
+    <div>
+    <x-input-label for="beca" value="Beca" />
+    <select id="beca" name="beca"
+            class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+        <option value="">Sin beca</option>
+        @foreach (\App\Models\Estudiante::BECAS as $valor => $etiqueta)
+            <option value="{{ $valor }}" @selected(old('beca', $estudiante?->beca) === $valor)>{{ $etiqueta }}</option>
+        @endforeach
+    </select>
+    <x-input-error :messages="$errors->get('beca')" class="mt-2" />
+</div>
     <div class="md:col-span-2">
         <x-input-label for="direccion" value="Dirección" />
         <x-text-input id="direccion" name="direccion" type="text" class="mt-1 block w-full"

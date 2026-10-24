@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Illuminate\Support\Str;
 
 class EstudiantesImport implements ToCollection, WithHeadingRow
 {
@@ -84,6 +85,7 @@ class EstudiantesImport implements ToCollection, WithHeadingRow
                 'sexo'             => $this->sexo($fila->get('sexo')),
                 'telefono'         => $this->texto($fila->get('telefono')),
                 'direccion'        => $this->texto($fila->get('direccion')),
+                'beca' => $this->beca($fila->get('beca')),
             ];
 
             $mensajes = Validator::make($datos, $this->reglas(), $this->mensajes(), $this->atributos())
@@ -142,6 +144,7 @@ class EstudiantesImport implements ToCollection, WithHeadingRow
             'sexo'             => ['nullable', Rule::in(['M', 'F'])],
             'telefono'         => ['nullable', 'string', 'max:20'],
             'direccion'        => ['nullable', 'string', 'max:255'],
+            'beca' => ['nullable', Rule::in(array_keys(Estudiante::BECAS))],
         ];
     }
 
@@ -150,9 +153,29 @@ class EstudiantesImport implements ToCollection, WithHeadingRow
         return [
             'fecha_nacimiento.date_format' => 'La fecha de nacimiento no es válida (usa AAAA-MM-DD, por ejemplo 2009-03-15).',
             'sexo.in'                      => 'El sexo debe ser M o F.',
+            'beca.in' => 'La beca debe ser "becado" o "beca especial" (o dejarla vacía).',
         ];
     }
 
+    private function beca($valor): ?string
+{
+    $v = $this->texto($valor);
+
+    if (! $v) {
+        return null;
+    }
+
+    $v = Str::of($v)->lower()->ascii()->replaceMatches('/[^a-z]/', '')->toString();
+
+    if (in_array($v, ['ninguna', 'no', 'sin', 'nada'], true)) {
+        return null;
+    }
+
+    return [
+        'becado' => 'becado', 'beca' => 'becado',
+        'especial' => 'beca_especial', 'becaespecial' => 'beca_especial',
+    ][$v] ?? $v; // si no se reconoce, la validación mostrará el error
+}
     private function atributos(): array
     {
         return [

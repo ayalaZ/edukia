@@ -39,6 +39,7 @@
                     <li>La fecha va como <strong>AAAA-MM-DD</strong> (por ejemplo 2009-03-15).</li>
                     <li>El sexo es <strong>M</strong> o <strong>F</strong> (opcional).</li>
                     <li>El código y el documento no se pueden repetir, ni en el archivo ni en el sistema.</li>
+                    <li>Beca (opcional): escribe <strong>becado</strong> o <strong>beca especial</strong>. Déjala vacía si no tiene beca.</li>
                     <li>Máximo 1000 filas por archivo.</li>
                     <li>Si una fila tiene un error, no se guarda ninguna: así evitas duplicados al volver a subirlo.</li>
                 </ul>

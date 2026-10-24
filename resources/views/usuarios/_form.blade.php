@@ -1,6 +1,7 @@
 @php
     $user = $user ?? null;
     $ficha = $user?->docente;
+    $fichaAcu = $user?->acudiente;
     $esMismoUsuario = $user && $user->id === auth()->id();
 @endphp
 
@@ -122,6 +123,25 @@
         </div>
     </div>
 </div>
+<div id="datos-acudiente" style="display: none;">
+    <h3 class="text-lg font-medium text-gray-900 mt-8 mb-4">Datos del acudiente</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+            <x-input-label for="ocupacion" value="Ocupación" />
+            <x-text-input id="ocupacion" name="ocupacion" type="text" class="mt-1 block w-full"
+                          :value="old('ocupacion', $fichaAcu?->ocupacion)" />
+            <x-input-error :messages="$errors->get('ocupacion')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="lugar_trabajo" value="Lugar de trabajo" />
+            <x-text-input id="lugar_trabajo" name="lugar_trabajo" type="text" class="mt-1 block w-full"
+                          :value="old('lugar_trabajo', $fichaAcu?->lugar_trabajo)" />
+            <x-input-error :messages="$errors->get('lugar_trabajo')" class="mt-2" />
+        </div>
+    </div>
+</div>
 
 <div class="flex items-center justify-end gap-4 mt-8">
     <a href="{{ route('usuarios.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
@@ -131,10 +151,12 @@
 <script>
     (function () {
         const rol = document.getElementById('rol');
-        const bloque = document.getElementById('datos-docente');
+        const docente = document.getElementById('datos-docente');
+        const acudiente = document.getElementById('datos-acudiente');
 
         function alternar() {
-            bloque.style.display = rol.value === 'docente' ? 'block' : 'none';
+            docente.style.display = rol.value === 'docente' ? 'block' : 'none';
+            acudiente.style.display = rol.value === 'acudiente' ? 'block' : 'none';
         }
 
         rol.addEventListener('change', alternar);

@@ -21,6 +21,7 @@ class UserController extends Controller
     ];
 
     private const CAMPOS_DOCENTE = ['especialidad', 'fecha_contratacion', 'tipo_contrato'];
+    private const CAMPOS_ACUDIENTE = ['ocupacion', 'lugar_trabajo'];
 
     public function index(Request $request)
     {
@@ -49,67 +50,77 @@ class UserController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $datos = $request->validate($this->reglas());
+{
+    $datos = $request->validate($this->reglas());
 
-        $ficha = Arr::only($datos, self::CAMPOS_DOCENTE);
-        $datos = Arr::except($datos, self::CAMPOS_DOCENTE);
+    $fichaDocente   = Arr::only($datos, self::CAMPOS_DOCENTE);
+    $fichaAcudiente = Arr::only($datos, self::CAMPOS_ACUDIENTE);
+    $datos = Arr::except($datos, [...self::CAMPOS_DOCENTE, ...self::CAMPOS_ACUDIENTE]);
 
-        $datos['password']          = Hash::make($datos['password']);
-        $datos['activo']            = true;
-        $datos['cambiar_password']  = true;
-        $datos['email_verified_at'] = now();
+    $datos['password']          = Hash::make($datos['password']);
+    $datos['activo']            = true;
+    $datos['cambiar_password']  = true;
+    $datos['email_verified_at'] = now();
 
-        DB::transaction(function () use ($datos, $ficha) {
-            $user = User::create($datos);
+    DB::transaction(function () use ($datos, $fichaDocente, $fichaAcudiente) {
+        $user = User::create($datos);
 
-            if ($user->rol === 'docente') {
-                $user->docente()->create($ficha);
-            }
-        });
+        if ($user->rol === 'docente') {
+            $user->docente()->create($fichaDocente);
+        }
 
-        return redirect()->route('usuarios.index')
-            ->with('ok', 'Usuario registrado correctamente.');
-    }
+        if ($user->rol === 'acudiente') {
+            $user->acudiente()->create($fichaAcudiente);
+        }
+    });
+
+    return redirect()->route('usuarios.index')
+        ->with('ok', 'Usuario registrado correctamente.');
+}
 
     public function edit(User $user)
-    {
-        return view('usuarios.edit', [
-            'user'  => $user->load('docente'),
-            'roles' => self::ROLES,
-        ]);
-    }
+{
+    return view('usuarios.edit', [
+        'user'  => $user->load('docente', 'acudiente'),
+        'roles' => self::ROLES,
+    ]);
+}
 
     public function update(Request $request, User $user)
-    {
-        $datos = $request->validate($this->reglas($user));
+{
+    $datos = $request->validate($this->reglas($user));
 
-        $ficha = Arr::only($datos, self::CAMPOS_DOCENTE);
-        $datos = Arr::except($datos, self::CAMPOS_DOCENTE);
+    $fichaDocente   = Arr::only($datos, self::CAMPOS_DOCENTE);
+    $fichaAcudiente = Arr::only($datos, self::CAMPOS_ACUDIENTE);
+    $datos = Arr::except($datos, [...self::CAMPOS_DOCENTE, ...self::CAMPOS_ACUDIENTE]);
 
-        // Un administrador no puede quitarse su propio rol
-        if ($user->id === Auth::id()) {
-            $datos['rol'] = $user->rol;
-        }
-
-        if (empty($datos['password'])) {
-            unset($datos['password']);
-        } else {
-            $datos['password'] = Hash::make($datos['password']);
-            $datos['cambiar_password'] = $user->id !== Auth::id();
-        }
-
-        DB::transaction(function () use ($user, $datos, $ficha) {
-            $user->update($datos);
-
-            if ($user->rol === 'docente') {
-                $user->docente()->updateOrCreate(['user_id' => $user->id], $ficha);
-            }
-        });
-
-        return redirect()->route('usuarios.index')
-            ->with('ok', 'Usuario actualizado correctamente.');
+    // Un administrador no puede quitarse su propio rol
+    if ($user->id === Auth::id()) {
+        $datos['rol'] = $user->rol;
     }
+
+    if (empty($datos['password'])) {
+        unset($datos['password']);
+    } else {
+        $datos['password'] = Hash::make($datos['password']);
+        $datos['cambiar_password'] = $user->id !== Auth::id();
+    }
+
+    DB::transaction(function () use ($user, $datos, $fichaDocente, $fichaAcudiente) {
+        $user->update($datos);
+
+        if ($user->rol === 'docente') {
+            $user->docente()->updateOrCreate(['user_id' => $user->id], $fichaDocente);
+        }
+
+        if ($user->rol === 'acudiente') {
+            $user->acudiente()->updateOrCreate(['user_id' => $user->id], $fichaAcudiente);
+        }
+    });
+
+    return redirect()->route('usuarios.index')
+        ->with('ok', 'Usuario actualizado correctamente.');
+}
 
     public function cambiarEstado(User $user)
     {
@@ -156,6 +167,10 @@ class UserController extends Controller
             'especialidad'       => ['nullable', 'string', 'max:255'],
             'fecha_contratacion' => ['nullable', 'date', 'before_or_equal:today'],
             'tipo_contrato'      => ['nullable', Rule::in(array_keys(Docente::CONTRATOS))],
+
+            // Ficha del acudiente
+            'ocupacion'     => ['nullable', 'string', 'max:255'],
+            'lugar_trabajo' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -7,6 +7,9 @@ use App\Http\Controllers\CambioPasswordController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\SeccionController;
 use App\Http\Controllers\MatriculaController;
+use App\Http\Controllers\EstudianteAcudienteController;
+use App\Http\Controllers\AcudienteImportController;
+use App\Http\Controllers\AcudienteController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -29,6 +32,25 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
     Route::patch('usuarios/{user}/estado', [UserController::class, 'cambiarEstado'])
         ->name('usuarios.estado');
+
+    Route::get('estudiantes/{estudiante}/acudientes', [EstudianteAcudienteController::class, 'index'])
+    ->name('estudiantes.acudientes.index');
+    Route::post('estudiantes/{estudiante}/acudientes', [EstudianteAcudienteController::class, 'store'])
+    ->name('estudiantes.acudientes.store');
+    Route::patch('estudiantes/{estudiante}/acudientes/{acudiente}/principal', [EstudianteAcudienteController::class, 'principal'])
+    ->name('estudiantes.acudientes.principal');
+    Route::delete('estudiantes/{estudiante}/acudientes/{acudiente}', [EstudianteAcudienteController::class, 'destroy'])
+    ->name('estudiantes.acudientes.destroy');
+
+    Route::get('acudientes/plantilla', [AcudienteImportController::class, 'plantilla'])
+    ->name('acudientes.plantilla');
+    Route::get('acudientes/importar', [AcudienteImportController::class, 'importar'])
+    ->name('acudientes.importar');
+    Route::post('acudientes/importar', [AcudienteImportController::class, 'procesar'])
+    ->name('acudientes.importar.procesar');
+
+    Route::get('acudientes', [AcudienteController::class, 'index'])
+    ->name('acudientes.index');
 });
 Route::middleware('auth')->group(function () {
     Route::get('cambiar-password', [CambioPasswordController::class, 'edit'])

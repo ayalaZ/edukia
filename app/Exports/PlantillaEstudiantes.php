@@ -23,7 +23,7 @@ class PlantillaEstudiantes implements FromArray, WithHeadings, ShouldAutoSize, W
     {
         return [[
             'E-0001', 'María José', 'Hernández López', '05095331-8',
-            '2009-03-15', 'F', '7000-0000', 'Col. Centro, Usulután',,''
+            '2009-03-15', 'F', '7000-0000', 'Col. Centro Usulután','',
         ]];
     }
 

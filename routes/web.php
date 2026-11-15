@@ -10,6 +10,7 @@ use App\Http\Controllers\MatriculaController;
 use App\Http\Controllers\EstudianteAcudienteController;
 use App\Http\Controllers\AcudienteImportController;
 use App\Http\Controllers\AcudienteController;
+use App\Http\Controllers\ConfiguracionEconomicaController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -34,23 +35,23 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('usuarios.estado');
 
     Route::get('estudiantes/{estudiante}/acudientes', [EstudianteAcudienteController::class, 'index'])
-    ->name('estudiantes.acudientes.index');
+        ->name('estudiantes.acudientes.index');
     Route::post('estudiantes/{estudiante}/acudientes', [EstudianteAcudienteController::class, 'store'])
-    ->name('estudiantes.acudientes.store');
+        ->name('estudiantes.acudientes.store');
     Route::patch('estudiantes/{estudiante}/acudientes/{acudiente}/principal', [EstudianteAcudienteController::class, 'principal'])
-    ->name('estudiantes.acudientes.principal');
+        ->name('estudiantes.acudientes.principal');
     Route::delete('estudiantes/{estudiante}/acudientes/{acudiente}', [EstudianteAcudienteController::class, 'destroy'])
-    ->name('estudiantes.acudientes.destroy');
+        ->name('estudiantes.acudientes.destroy');
 
     Route::get('acudientes/plantilla', [AcudienteImportController::class, 'plantilla'])
-    ->name('acudientes.plantilla');
+        ->name('acudientes.plantilla');
     Route::get('acudientes/importar', [AcudienteImportController::class, 'importar'])
-    ->name('acudientes.importar');
+        ->name('acudientes.importar');
     Route::post('acudientes/importar', [AcudienteImportController::class, 'procesar'])
-    ->name('acudientes.importar.procesar');
+        ->name('acudientes.importar.procesar');
 
     Route::get('acudientes', [AcudienteController::class, 'index'])
-    ->name('acudientes.index');
+        ->name('acudientes.index');
 });
 Route::middleware('auth')->group(function () {
     Route::get('cambiar-password', [CambioPasswordController::class, 'edit'])
@@ -83,4 +84,11 @@ Route::post('secciones/{seccion}/matriculas', [MatriculaController::class, 'stor
     ->name('matriculas.store');
 Route::delete('matriculas/{matricula}', [MatriculaController::class, 'destroy'])
     ->name('matriculas.destroy');
-require __DIR__.'/auth.php';
+
+Route::middleware(['auth', 'verified', 'rol:admin,administrativo'])->group(function () {
+    Route::resource('economia', ConfiguracionEconomicaController::class)
+        ->parameters(['economia' => 'economia'])
+        ->except(['show']);
+});
+
+require __DIR__ . '/auth.php';

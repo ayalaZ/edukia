@@ -31,6 +31,11 @@
                         Secciones
                     </x-nav-link>
                 @endif
+                @if (in_array(auth()->user()->rol, ['admin', 'administrativo']))
+                    <x-nav-link :href="route('economia.index')" :active="request()->routeIs('secciones.*')">
+                        Economico
+                    </x-nav-link>
+                @endif
                 @if (auth()->user()->rol === 'admin')
                     <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
                         Usuarios

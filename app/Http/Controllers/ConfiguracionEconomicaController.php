@@ -12,8 +12,7 @@ class ConfiguracionEconomicaController extends Controller
         $config = ConfiguracionEconomica::first();
 
         return view(
-            'Economia.index',
-            compact('config')
+            'economia.index', compact('config')
         );
     }
 
